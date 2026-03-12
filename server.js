@@ -1,7 +1,15 @@
 import express from "express";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
+
+app.get("/", (req, res) => {
+  res.send("Proxy läuft!");
+});
+
+app.get("/test", (req, res) => {
+  res.send("Test funktioniert!");
+});
 
 app.get("/api/einsaetze", async (req, res) => {
   try {
@@ -9,21 +17,16 @@ app.get("/api/einsaetze", async (req, res) => {
       "https://einsatzuebersicht.lfv.steiermark.at/einsatzkarte/data/public_current.json"
     );
 
-    const data = await response.text();
+    const text = await response.text();
 
-    res.setHeader("Content-Type", "application/json");
-    res.send(data);
-
-  } catch (err) {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.send(text);
+  } catch (error) {
     res.status(500).json({
-      error: "Proxy error",
-      message: err.message
+      error: "Abruf fehlgeschlagen",
+      details: error.message
     });
   }
-});
-
-app.get("/", (req, res) => {
-  res.send("Proxy läuft!");
 });
 
 app.listen(PORT, () => {
