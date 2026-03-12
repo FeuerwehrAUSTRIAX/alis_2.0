@@ -12,19 +12,29 @@ app.get("/test", (req, res) => {
 });
 
 app.get("/api/einsaetze", async (req, res) => {
+  const url =
+    "https://einsatzuebersicht.lfv.steiermark.at/einsatzkarte/data/public_current.json";
+
   try {
-    const response = await fetch(
-      "https://einsatzuebersicht.lfv.steiermark.at/einsatzkarte/data/public_current.json"
-    );
+    const response = await fetch(url);
 
     const text = await response.text();
 
+    res.status(response.status);
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.send(text);
   } catch (error) {
     res.status(500).json({
       error: "Abruf fehlgeschlagen",
-      details: error.message
+      message: error.message,
+      cause: error.cause ? {
+        message: error.cause.message,
+        code: error.cause.code,
+        errno: error.cause.errno,
+        syscall: error.cause.syscall,
+        hostname: error.cause.hostname
+      } : null,
+      stack: error.stack
     });
   }
 });
